@@ -1,0 +1,17 @@
+import boto3
+
+def lambda_handler(event, context):
+    # Extract relevant information from the REST API request
+    file_data = event['file']  # Assuming the file is sent as a base64-encoded string
+    filename = event['filename']  # Assuming the filename is provided in the request
+
+    # Decode the file data from base64
+    decoded_file_data = base64.b64decode(file_data)
+
+    # Check if the file size is 5MB
+    file_size = len(decoded_file_data)
+    if file_size > 5 * 1024 * 1024:  # 5MB = 5 * 1024 * 1024 bytes
+     return {
+    'statusCode': 400,
+    'body': 'Invalid request. Please provide a valid input.'
+}
