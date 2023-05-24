@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word to PDF Converter</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Word to PDF Converter</h1>
+    <div class="alert d-none" id="success-alert" role="alert"></div>
+    <div class="alert d-none" id="error-alert" role="alert"></div>
+    <form id="upload-form" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="word-file">Select a Word file (DOCX):</label>
+        <input type="file" class="form-control-file" id="word-file" accept=".docx" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Convert to PDF</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var form = document.getElementById('upload-form');
+      var fileInput = document.getElementById('word-file');
+      
+      if (fileInput.files.length === 0) {
+        showErrorAlert('Please select a Word file.');
+        return;
+      }
+      
+      var file = fileInput.files[0];
+      if (!file.name.toLowerCase().endsWith('.docx')) {
+        showErrorAlert('Invalid file format. Only DOCX files are allowed.');
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        showErrorAlert('File size exceeds the limit of 5 MB.');
+        return;
+      }
+      
+      var formData = new FormData();
+      formData.append('file', file);
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://xk6oh43i1m.execute-api.us-east-1.amazonaws.com/default/filetopdf');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          showSuccessAlert('File converted successfully.');
+        } else {
+          showErrorAlert('Conversion failed: ' + xhr.responseText);
+        }
+      };
+      xhr.onerror = function() {
+        showErrorAlert('An error occurred while sending the request.');
+      };
+      xhr.send(formData);
+    });
+
+    function showSuccessAlert(message) {
+      var alert = document.getElementById('success-alert');
+      alert.textContent = message;
+      alert.classList.remove('d-none');
+      alert.classList.add('alert-success');
+      
+      var errorAlert = document.getElementById('error-alert');
+      errorAlert.classList.add('d-none');
+    }
+    
+    function showErrorAlert(message) {
+      var alert = document.getElementById('error-alert');
+      alert.textContent = message;
+      alert.classList.remove('d-none');
+      alert.classList.add('alert-danger');
+      
+      var successAlert = document.getElementById('success-alert');
+      successAlert.classList.add('d-none');
+    }
+  </script>
+</body>
+</html>
